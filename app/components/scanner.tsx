@@ -1,10 +1,30 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { DEX, FONTS } from '../lib/theme';
 import { Press3D } from './fx';
 
 const SCAN_H = 210;
+
+/** Web only: expo-camera doesn't set focusMode, so drive the video track directly. */
+function webFocus(mode: 'continuous' | 'single-shot'): void {
+  if (Platform.OS !== 'web') return;
+  try {
+    const g = globalThis as unknown as Record<string, any>;
+    const vids: any[] = g.document ? Array.from(g.document.querySelectorAll('video')) : [];
+    for (const v of vids) {
+      const tracks: any[] = v.srcObject?.getVideoTracks?.() ?? [];
+      for (const t of tracks) {
+        const supported: string[] = t.getCapabilities?.()?.focusMode ?? [];
+        if (supported.includes(mode)) {
+          void t.applyConstraints({ advanced: [{ focusMode: mode }] })?.catch?.(() => {});
+        }
+      }
+    }
+  } catch {
+    /* browser without track support */
+  }
+}
 
 export interface ScannerHandle {
   snap: () => void;
@@ -24,6 +44,7 @@ export const Scanner = forwardRef<ScannerHandle, {
   const flashV = useRef(new Animated.Value(0)).current;
   const irisV = useRef(new Animated.Value(1)).current;
   const [irisOn, setIrisOn] = useState(false);
+  const [focusRing, setFocusRing] = useState<{ x: number; y: number; k: number } | null>(null);
 
   useEffect(() => {
     const sweep = Animated.loop(
@@ -95,7 +116,25 @@ export const Scanner = forwardRef<ScannerHandle, {
 
   return (
     <View style={styles.box}>
-      <CameraView ref={camRef} style={styles.cam} facing="back" animateShutter={false} onCameraReady={() => setReady(true)} />
+      <CameraView ref={camRef} style={styles.cam} facing="back" autofocus="on" animateShutter={false} onCameraReady={() => { setReady(true); webFocus('continuous'); }} />
+      {Platform.OS === 'web' && (
+        <Pressable
+          style={styles.tapZone}
+          onPress={(e) => {
+            const n = e.nativeEvent as unknown as Record<string, number | undefined>;
+            const x = n.locationX ?? n.offsetX ?? 105;
+            const y = n.locationY ?? n.offsetY ?? 105;
+            webFocus('single-shot');
+            setFocusRing({ x, y, k: Date.now() });
+            setTimeout(() => setFocusRing(null), 900);
+            // back to tracking so the next subject stays sharp
+            setTimeout(() => webFocus('continuous'), 1500);
+          }}
+        />
+      )}
+      {focusRing !== null && (
+        <View key={focusRing.k} pointerEvents="none" style={[styles.ring, { left: focusRing.x - 35, top: focusRing.y - 35 }]} />
+      )}
       {/* grid */}
       <View style={styles.grid} pointerEvents="none">
         {[0, 1, 2, 3, 4, 5].map((i) => (
@@ -127,6 +166,12 @@ export const Scanner = forwardRef<ScannerHandle, {
 const styles = StyleSheet.create({
   box: { width: '100%', height: SCAN_H, borderRadius: 4, overflow: 'hidden', backgroundColor: '#000' },
   cam: { ...StyleSheet.absoluteFill },
+  tapZone: { ...StyleSheet.absoluteFill, zIndex: 1 },
+  ring: {
+    position: 'absolute', width: 70, height: 70, borderRadius: 4,
+    borderWidth: 2, borderColor: DEX.cyan,
+    shadowColor: DEX.cyan, shadowOpacity: 0.9, shadowRadius: 6,
+  },
   center: { width: '100%', height: SCAN_H, alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: '#0b0c0e' },
   msg: { fontFamily: FONTS.pixel, fontSize: 10, color: DEX.crimson },
   allow: { backgroundColor: DEX.cyan, borderRadius: 4, paddingHorizontal: 14, paddingVertical: 8 },
