@@ -1,0 +1,20 @@
+# Datasets / captures (GBs) — never push.
+pokemon_dataset/
+Bb/
+outputs/backup_pre_bb/
+# Training artifacts — keep the repo light (server needs only best.onnx + classes.txt).
+outputs/*.pt
+outputs/*.csv
+outputs/test_report.txt
+outputs/history.csv
+outputs/split.json
+outputs/fetch_manifest.json
+# Toolchains / caches.
+**/node_modules/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+app/.expo/
+.expo/
+# Nested repo stub (local only, no remote) — root repo owns history.
+app/.git/

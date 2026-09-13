@@ -1,0 +1,10 @@
+# Render Blueprint: PokT backend (FastAPI + ONNX). Apply via
+# Dashboard -> New -> Blueprint -> select this repo.
+services:
+  - type: web
+    name: pokt-backend
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    healthCheckPath: /health

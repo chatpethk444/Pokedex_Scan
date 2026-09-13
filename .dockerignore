@@ -1,0 +1,18 @@
+# Keep the image lean: model + server only.
+.git
+.gitignore
+pokemon_dataset/
+Bb/
+outputs/backup_pre_bb/
+outputs/*.pt
+outputs/*.csv
+outputs/*.json
+outputs/fetch_manifest.json
+outputs/split.json
+outputs/test_report.txt
+outputs/history.csv
+app/
+src/
+__pycache__/
+*.pyc
+*.pyo
