@@ -6,24 +6,52 @@ import { Press3D } from './fx';
 
 const SCAN_H = 210;
 
-/** Web only: expo-camera doesn't set focusMode, so drive the video track directly. */
-function webFocus(mode: 'continuous' | 'single-shot'): void {
+/** Web only: expo-camera doesn't set focusMode. Many Android browsers don't even
+ *  list focusMode in capabilities, so: try regardless (blind attempt works on
+ *  phones that hide caps), retry after ready (stream may attach late), and on
+ *  tap fall back to manual focusDistance (diopters: min = far, max = near). */
+function eachVideoTrack(fn: (t: any) => void): void {
   if (Platform.OS !== 'web') return;
   try {
     const g = globalThis as unknown as Record<string, any>;
     const vids: any[] = g.document ? Array.from(g.document.querySelectorAll('video')) : [];
     for (const v of vids) {
       const tracks: any[] = v.srcObject?.getVideoTracks?.() ?? [];
-      for (const t of tracks) {
-        const supported: string[] = t.getCapabilities?.()?.focusMode ?? [];
-        if (supported.includes(mode)) {
-          void t.applyConstraints({ advanced: [{ focusMode: mode }] })?.catch?.(() => {});
-        }
-      }
+      for (const t of tracks) fn(t);
     }
   } catch {
     /* browser without track support */
   }
+}
+
+function setTrack(t: any, mode: string, extra?: Record<string, number>): void {
+  try {
+    void t.applyConstraints?.({ advanced: [{ focusMode: mode, ...extra }] })?.catch?.(() => {});
+  } catch {
+    /* unsupported constraint */
+  }
+}
+
+function webFocus(mode: 'continuous' | 'single-shot'): void {
+  eachVideoTrack((t) => setTrack(t, mode));
+}
+
+/** Tap-to-focus: single-shot ping + manual distance from tap height (top = far). */
+function webTapFocus(yFrac: number): void {
+  const f = Math.min(1, Math.max(0, yFrac));
+  eachVideoTrack((t) => {
+    setTrack(t, 'single-shot');
+    const dist = t.getCapabilities?.()?.focusDistance as { min: number; max: number } | undefined;
+    if (dist !== undefined && Number.isFinite(dist.min) && Number.isFinite(dist.max) && dist.max > dist.min) {
+      setTrack(t, 'manual', { focusDistance: dist.min + f * (dist.max - dist.min) });
+    }
+  });
+}
+
+/** Stream can attach after onCameraReady — re-assert a few times. */
+function webFocusSoon(): void {
+  if (Platform.OS !== 'web') return;
+  for (const ms of [500, 1500, 3000]) setTimeout(() => webFocus('continuous'), ms);
 }
 
 export interface ScannerHandle {
@@ -116,7 +144,7 @@ export const Scanner = forwardRef<ScannerHandle, {
 
   return (
     <View style={styles.box}>
-      <CameraView ref={camRef} style={styles.cam} facing="back" autofocus="on" animateShutter={false} onCameraReady={() => { setReady(true); webFocus('continuous'); }} />
+      <CameraView ref={camRef} style={styles.cam} facing="back" autofocus="on" animateShutter={false} onCameraReady={() => { setReady(true); webFocus('continuous'); webFocusSoon(); }} />
       {Platform.OS === 'web' && (
         <Pressable
           style={styles.tapZone}
@@ -124,7 +152,7 @@ export const Scanner = forwardRef<ScannerHandle, {
             const n = e.nativeEvent as unknown as Record<string, number | undefined>;
             const x = n.locationX ?? n.offsetX ?? 105;
             const y = n.locationY ?? n.offsetY ?? 105;
-            webFocus('single-shot');
+            webTapFocus(y / SCAN_H);
             setFocusRing({ x, y, k: Date.now() });
             setTimeout(() => setFocusRing(null), 900);
             // back to tracking so the next subject stays sharp
