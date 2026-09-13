@@ -8,6 +8,11 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
+# opencv (via rapidocr) needs GUI/X system libs missing from slim.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 libglib2.0-0 libsm6 libxext6 libxrender1 libxcb1 \
+ && rm -rf /var/lib/apt/lists/*
+
 COPY backend/requirements-server.txt ./backend/
 RUN pip install --no-cache-dir -r backend/requirements-server.txt
 
