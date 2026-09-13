@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system/legacy';
 
-const DEFAULT_BASE_URL = 'http://10.200.49.135:8000';
+const DEFAULT_BASE_URL = 'https://pokt-backend.onrender.com';
 
 const LINK_KEY = 'pokt-link-v1';
 
@@ -25,7 +25,8 @@ export async function saveBaseUrl(url: string): Promise<void> {
 }
 
 // Fail fast: OS TCP timeout is ~60s (user stares at SCANNING). Cap waits here.
-const UPLOAD_TIMEOUT_MS = 30000;
+// UPLOAD raised for Render free cold start (first wake can take ~60s+).
+const UPLOAD_TIMEOUT_MS = 90000;
 const JSON_TIMEOUT_MS = 15000;
 const HEALTH_TIMEOUT_MS = 15000;
 
