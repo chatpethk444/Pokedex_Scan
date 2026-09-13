@@ -230,6 +230,6 @@ const styles = StyleSheet.create({
   },
   closeBtn: {
     position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.55)',
-    borderRadius: 4,
+    borderRadius: 4, zIndex: 5,
   },
 });
