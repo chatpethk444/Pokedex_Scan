@@ -505,7 +505,7 @@ export function App(): React.JSX.Element {
     <SafeAreaProvider>
       <SafeAreaView style={styles.safe}>
         <ScrollView contentContainerStyle={styles.bg}>
-          <LinearGradient colors={['#d32730', '#a6161e', '#7d0d13']} style={[styles.chassis, compact && styles.chassisCompact]}>
+            <LinearGradient colors={['#d32730', '#a6161e', '#7d0d13']} style={[styles.chassis, compact && styles.chassisCompact, { maxWidth: Math.max(520, winW - 16) }]}>
             <View style={styles.sensorRow}>
               <View style={styles.sensorLeft}>
                 <View style={styles.lensWrap}>
@@ -907,7 +907,7 @@ export function App(): React.JSX.Element {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#12131a' },
-  bg: { backgroundColor: '#12131a', padding: 8, alignItems: 'center' },
+  bg: { backgroundColor: '#12131a', padding: 8, alignItems: 'center', flexGrow: 1 },
   boot: { flex: 1, backgroundColor: '#12131a', alignItems: 'center', justifyContent: 'center' },
   chassis: {
     width: '100%', maxWidth: 520, alignSelf: 'center',
