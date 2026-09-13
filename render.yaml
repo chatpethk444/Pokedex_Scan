@@ -1,5 +1,5 @@
-# Render Blueprint: PokT backend (FastAPI + ONNX). Apply via
-# Dashboard -> New -> Blueprint -> select this repo.
+# Render Blueprint: PokT backend (FastAPI + ONNX) + web demo (Expo static).
+# Apply via Dashboard -> New -> Blueprint -> select this repo.
 services:
   - type: web
     name: pokt-backend
@@ -8,3 +8,13 @@ services:
     dockerfilePath: ./backend/Dockerfile
     plan: free
     healthCheckPath: /health
+  - type: web
+    name: pokt-web
+    env: static
+    plan: free
+    buildCommand: cd app && npm ci && npx expo export --platform web
+    staticPublishPath: app/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
