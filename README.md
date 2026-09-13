@@ -1,5 +1,34 @@
 # PokT Pokedex — Gen 1 Scanner
 
+## Tech stack
+
+![Expo](https://img.shields.io/badge/Expo_57-000000?style=for-the-badge&logo=expo&logoColor=white)
+![React](https://img.shields.io/badge/React_19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![React Native](https://img.shields.io/badge/React_Native_0.86-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![EAS](https://img.shields.io/badge/EAS_Build-000000?style=for-the-badge&logo=expo&logoColor=white)
+
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Uvicorn](https://img.shields.io/badge/Uvicorn-499848?style=for-the-badge&logo=uvicorn&logoColor=white)
+![ONNX Runtime](https://img.shields.io/badge/ONNX_Runtime-005CED?style=for-the-badge&logo=onnx&logoColor=white)
+![Pillow](https://img.shields.io/badge/Pillow-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![RapidOCR](https://img.shields.io/badge/RapidOCR-FF6F00?style=for-the-badge&logo=opencv&logoColor=white)
+
+![ResNet-18](https://img.shields.io/badge/ResNet--18-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
+![timm](https://img.shields.io/badge/timm-PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
+![ONNX Export](https://img.shields.io/badge/ONNX-224px-005CED?style=for-the-badge&logo=onnx&logoColor=white)
+
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
+![torchvision](https://img.shields.io/badge/torchvision-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-F79A3E?style=for-the-badge&logo=scikit-learn&logoColor=white)
+
+![PokeAPI](https://img.shields.io/badge/PokeAPI-Gen_1-EF5350?style=for-the-badge&logo=pokemon&logoColor=white)
+
+![Render](https://img.shields.io/badge/Render-Docker-46E3B7?style=for-the-badge&logo=render&logoColor=black)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![UptimeRobot](https://img.shields.io/badge/UptimeRobot-3BD4AE?style=for-the-badge&logo=uptimerobot&logoColor=black)
+
+
 Point a camera at a Pokemon and get a full Pokedex entry: classification, official artwork gallery, cry, lore, base stats, abilities, type weaknesses, and evolution chain. Covers **149 Gen 1 classes** with a **70% confidence gate** — low-confidence shots are rejected instead of guessing.
 
 Live demo: **https://pokt-web.onrender.com** · API: **https://pokt-backend.onrender.com** (`/health`, `/docs`)
@@ -17,16 +46,7 @@ Camera / Gallery  →  Expo app  →  POST /predict  →  ONNX classifier (ResNe
 - **Dex data** — types, stats, abilities, flavor text, artwork gallery, cries, and full branching evolution chains (Gen 1 only, Eevee keeps all three evolutions) from PokeAPI, cached server-side.
 - **App UX** — boot self-test, scan reveal animation, narrated entries, rescannable gallery, persistent seen-dex (0–151), works on Android (EAS APK) and web.
 
-## Tech stack
 
-| Layer | Tech |
-| --- | --- |
-| App | Expo 57 · React 19 · React Native 0.86 · TypeScript · EAS (APK) |
-| Inference API | FastAPI · Uvicorn · ONNX Runtime · Pillow · RapidOCR |
-| Model | ResNet-18 via `timm` (transfer learning) → exported ONNX, 224px |
-| Training | PyTorch · torchvision · scikit-learn · 70/15/15 stratified split |
-| Dex data | PokeAPI (cached, Gen 1 only) |
-| Hosting | Render (Docker backend + static web) · UptimeRobot keepalive |
 
 ## Test results
 
