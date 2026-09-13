@@ -7,7 +7,7 @@ Live demo: **https://pokt-web.onrender.com** · API: **https://pokt-backend.onre
 ## How it works
 
 ```
-Camera / Gallery  →  Expo app  →  POST /predict  →  ONNX classifier (MobileNet-style, 224px)
+Camera / Gallery  →  Expo app  →  POST /predict  →  ONNX classifier (ResNet-18, 224px)
                                 →  GET /pokemon/{name}  →  PokeAPI (+ offline fallback)
                                 →  POST /ocr  →  RapidOCR card reader (name / HP / card no.)
 ```
@@ -16,6 +16,31 @@ Camera / Gallery  →  Expo app  →  POST /predict  →  ONNX classifier (Mobil
 - **Card OCR** — RapidOCR reads TCG cards and cross-checks the printed name against the classifier (`agree: true/false`).
 - **Dex data** — types, stats, abilities, flavor text, artwork gallery, cries, and full branching evolution chains (Gen 1 only, Eevee keeps all three evolutions) from PokeAPI, cached server-side.
 - **App UX** — boot self-test, scan reveal animation, narrated entries, rescannable gallery, persistent seen-dex (0–151), works on Android (EAS APK) and web.
+
+## Tech stack
+
+| Layer | Tech |
+| --- | --- |
+| App | Expo 57 · React 19 · React Native 0.86 · TypeScript · EAS (APK) |
+| Inference API | FastAPI · Uvicorn · ONNX Runtime · Pillow · RapidOCR |
+| Model | ResNet-18 via `timm` (transfer learning) → exported ONNX, 224px |
+| Training | PyTorch · torchvision · scikit-learn · 70/15/15 stratified split |
+| Dex data | PokeAPI (cached, Gen 1 only) |
+| Hosting | Render (Docker backend + static web) · UptimeRobot keepalive |
+
+## Test results
+
+Locked test set, evaluated once (`src/eval.py` → `outputs/test_report.txt`):
+
+| Metric | Score |
+| --- | --- |
+| Accuracy (n=6068) | **96.85%** |
+| Balanced accuracy | 96.79% |
+| Macro F1 | 96.84% |
+
+![Per-class recall, 149 classes](docs/test-recall.svg)
+
+Worst classes are all above 0.92 recall (Weepinbell 0.923, Weezing/Alakazam 0.925) — comfortably above the 70% in-app confidence gate, so production rejects are rare and genuine.
 
 ## Repo layout
 
