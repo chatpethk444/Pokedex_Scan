@@ -1,5 +1,5 @@
 # Runtime deps for the FastAPI backend ONLY (no training stack).
-# Full stack (torch/timm/...) lives in ../../requirements.txt and must NEVER
+# Full stack (torch/timm/...) lives in ../../requirements-train.txt and must NEVER
 # be installed on the server image (2GB+).
 fastapi>=0.100
 uvicorn>=0.20
