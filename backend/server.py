@@ -82,7 +82,7 @@ def preprocess(data: bytes) -> np.ndarray:
     return arr.transpose(2, 0, 1)[None]
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health():
     return {"status": "ok", "classes": CLASSES, "model": MODEL_PATH.name}
 
