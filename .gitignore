@@ -16,5 +16,8 @@ outputs/fetch_manifest.json
 **/*.pyo
 app/.expo/
 .expo/
-# Nested repo stub (local only, no remote) — root repo owns history.
-app/.git/
+# Local-only: agent skills (dev env, not part of the app).
+.agents/
+# Large experiment model — Docker/Render only needs outputs/best.onnx.
+# best.onnx stays tracked on purpose (backend/Dockerfile COPYs it).
+outputs/best_nonneon.onnx
